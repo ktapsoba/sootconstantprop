@@ -1,18 +1,14 @@
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
+import resources.State;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.G;
 import soot.Local;
 import soot.PackManager;
 import soot.Transform;
-import java.util.HashMap;
-import java.util.Map;
 
-import soot.Local;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.AssignStmt;
@@ -21,11 +17,8 @@ import soot.jimple.Constant;
 import soot.jimple.ReturnStmt;
 import soot.jimple.internal.JimpleLocal;
 import soot.toolkits.graph.DirectedGraph;
-import soot.toolkits.graph.ExceptionalGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
-import soot.toolkits.scalar.ArraySparseSet;
-import soot.toolkits.scalar.FlowSet;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
 
 public class CP_Analysis {
@@ -46,8 +39,8 @@ public class CP_Analysis {
 
 			protected void internalTransform(Body body, String phase, Map options) {
 				UnitGraph unitGraph = new ExceptionalUnitGraph(body);
-				constantprop cp_prop = new constantprop(unitGraph);
-				
+				//constantprop cp_prop = new constantprop(unitGraph);
+				constantpropState cp_propState = new constantpropState(unitGraph);
 			}
 
 		}));
@@ -86,6 +79,7 @@ public class CP_Analysis {
 
 		@Override
 		protected void flowThrough(Map<Local, Constant> inValue, Unit unit, Map<Local, Constant> outValue) {
+			G.v().out.println();
 			G.v().out.println("invalue=" + inValue);
 			copy(inValue, outValue);
 			// Only statements assigning locals matter
@@ -149,5 +143,107 @@ public class CP_Analysis {
 			return new HashMap<Local, Constant>();
 		}
 
+	}
+	
+	public class constantpropState extends ForwardFlowAnalysis<Unit, Map<Local, State>>{
+		private final Local RETURN_LOCAL = new JimpleLocal("@return", null);
+		
+		public constantpropState(DirectedGraph<Unit> graph) {
+			super(graph);
+			this.graph = graph;
+			// TODO Auto-generated constructor stub
+			doAnalysis();
+		}
+		
+		private void assign(Local lhs, Value rhs, Map<Local, State> input, Map<Local, State> output) {
+	         // First remove casts, if any.
+	         if (rhs instanceof CastExpr) {
+	             rhs = ((CastExpr) rhs).getOp();
+	         }
+	         // Then check if the RHS operand is a constant or local
+	         if (rhs instanceof Constant) {
+	             // If RHS is a constant, it is a direct gen
+	        	 State state = new State("constant");
+	             output.put(lhs, state);
+	         } else if (rhs instanceof Local) {
+	             // Copy constant-status of RHS to LHS (indirect gen), if exists
+	             if(input.containsKey(rhs)) {
+	                 output.put(lhs, input.get(rhs));
+	             }
+	         } else {
+	             // RHS is some compound expression, then LHS is non-constant (only kill)
+	             output.put(lhs, new State("null"));
+	         }
+	     }
+		
+		@Override
+		protected void flowThrough(Map<Local, State> input, Unit unit, Map<Local, State> output) {
+			// TODO Auto-generated method stub
+			G.v().out.println();
+			G.v().out.println("invalue=" + input);
+			copy(input, output);
+			// Only statements assigning locals matter
+			if (unit instanceof AssignStmt) {
+				// Get operands
+				Value lhsOp = ((AssignStmt) unit).getLeftOp();
+				Value rhsOp = ((AssignStmt) unit).getRightOp();
+				if (lhsOp instanceof Local) {
+					assign((Local) lhsOp, rhsOp, input, output);
+				}
+			} else if (unit instanceof ReturnStmt) {
+				// Get operand
+				Value rhsOp = ((ReturnStmt) unit).getOp();
+				assign(RETURN_LOCAL, rhsOp, input, output);
+			}
+			// Return the data flow value at the OUT of the statement
+			G.v().out.println("outvalue=" + output);
+		}
+
+		@Override
+		protected void copy(Map<Local, State> input, Map<Local, State> output) {
+			// TODO Auto-generated method stub
+			for (Local key : input.keySet()){
+				output.put(key, input.get(key));
+			}
+		}
+
+		@Override
+		protected Map<Local, State> entryInitialFlow() {
+			// TODO Auto-generated method stub
+			return new HashMap<Local, State>();
+		}
+
+		@Override
+		protected void merge(Map<Local, State> input1, Map<Local, State> input2, Map<Local, State> output) {
+			// TODO Auto-generated method stub
+			//Map<Local, Constant> result;
+	         // First add everything in the first operand
+	         copy(input1,output);
+	         //FlowSet l = null;
+	         //l.add(op1);
+
+	         // Then add everything in the second operand, bottoming out the common keys with different values
+	         for (Local x : input2.keySet()) {
+	             if (input1.containsKey(x)) {
+	                 // Check the values in both operands
+	                 State c1 = input1.get(x);
+	                 State c2 = input2.get(x);
+	                 if (c1 != null && c1.equals(c2) == false) {
+	                     // Set to non-constant
+	                     output.put(x, new State("null"));
+	                 }
+	             } else {
+	                 // Only in second operand, so add as-is
+	                 output.put(x, input2.get(x));
+	             }
+	         }
+		}
+
+		@Override
+		protected Map<Local, State> newInitialFlow() {
+			// TODO Auto-generated method stub
+			return new HashMap<Local, State>();
+		}
+		
 	}
 }
