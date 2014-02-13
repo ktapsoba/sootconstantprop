@@ -7,8 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import resources.State;
-
 public class JdbcExample {
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
@@ -19,14 +17,7 @@ public class JdbcExample {
 	static final String PASS = "testUser";
  
 	public static void main(String[] args) {
-		
-		String one = "Somethind";
-		one.toLowerCase().toCharArray();
-		
-		String lower = one.toLowerCase();
-		
-		State st = new State("KEN");
-		
+				
 		Connection conn = null;
 		Statement stmt = null;
 		try{

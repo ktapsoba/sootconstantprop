@@ -1,13 +1,12 @@
 package resources;
 
-import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Set;
 
 public class Action {
-	State state;
-	Set<Method> allowed;
-	Set<Method> notAllowed;
+	private State state;
+	private Set<Method> allowed;
+	private Set<Method> notAllowed;
 	
 	public Action (State st){
 		state = st;
@@ -17,6 +16,13 @@ public class Action {
 		state = st;
 		allowed = alwd;
 		notAllowed = ntalwd;
+	}
+	
+	public boolean isMethodAllowed(Method method){
+		return allowed.contains(method);
+	}
+	public boolean isMethodNotAllowed(Method method){
+		return notAllowed.contains(method);
 	}
 	
 	public String toString(){
@@ -29,14 +35,6 @@ public class Action {
 	
 	public void AddNotAllowed(Method method){
 		notAllowed.add(method);
-	}
-	
-	public boolean isAllowed(Method method){
-		return allowed.contains(method);
-	}
-	
-	public boolean isNotAllowed(Method method){
-		return notAllowed.contains(method);
 	}
 	
 	@Override

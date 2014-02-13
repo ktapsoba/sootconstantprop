@@ -2,9 +2,6 @@ package resources;
 
 import java.util.Objects;
 
-import soot.tagkit.AttributeValueException;
-import soot.tagkit.Tag;
-
 public class State {
 	
 	String name;

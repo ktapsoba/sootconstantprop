@@ -1,3 +1,5 @@
+import java.sql.Connection;
+
 
 public class Example {
 
@@ -9,7 +11,7 @@ public class Example {
 		String Ahmed = "My name is Ahmed";
 		
 		Ahmed = "done";
-		
+		Connection con = null;
 		int one = 8 -7;
 		
 		int two = one *3;

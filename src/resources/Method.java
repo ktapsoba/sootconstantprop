@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class Method {
 	
-	String className;
-	String name;
+	private String className;
+	private String name;
 	
 	public Method(String cls, String n){
 		className = cls;
@@ -16,6 +16,22 @@ public class Method {
 		return className + "." + name;
 	}
 	
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public boolean equals(Method method){
 		return this.hashCode() == method.hashCode();
 	}

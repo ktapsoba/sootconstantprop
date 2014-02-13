@@ -1,6 +1,5 @@
 package resources;
 
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class Transition {

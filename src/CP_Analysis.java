@@ -1,6 +1,7 @@
 import java.util.HashMap;
 import java.util.Map;
 
+import resources.Resource;
 import resources.State;
 import soot.Body;
 import soot.BodyTransformer;
@@ -14,7 +15,9 @@ import soot.Value;
 import soot.jimple.AssignStmt;
 import soot.jimple.CastExpr;
 import soot.jimple.Constant;
+import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
+import soot.jimple.Stmt;
 import soot.jimple.internal.JimpleLocal;
 import soot.toolkits.graph.DirectedGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -146,57 +149,44 @@ public class CP_Analysis {
 	}
 	
 	public class constantpropState extends ForwardFlowAnalysis<Unit, Map<Local, State>>{
-		private final Local RETURN_LOCAL = new JimpleLocal("@return", null);
-		
+		private Resource resource;
 		public constantpropState(DirectedGraph<Unit> graph) {
 			super(graph);
 			this.graph = graph;
+			resource = new Resource();
+			/*Iterator it = ((UnitGraph)graph).iterator();
+			while(it.hasNext()){
+				
+			}*/
 			// TODO Auto-generated constructor stub
 			doAnalysis();
 		}
 		
 		private void assign(Local lhs, Value rhs, Map<Local, State> input, Map<Local, State> output) {
-	         // First remove casts, if any.
-	         if (rhs instanceof CastExpr) {
-	             rhs = ((CastExpr) rhs).getOp();
-	         }
-	         // Then check if the RHS operand is a constant or local
-	         if (rhs instanceof Constant) {
-	             // If RHS is a constant, it is a direct gen
-	        	 State state = new State("constant");
-	             output.put(lhs, state);
-	         } else if (rhs instanceof Local) {
-	             // Copy constant-status of RHS to LHS (indirect gen), if exists
-	             if(input.containsKey(rhs)) {
-	                 output.put(lhs, input.get(rhs));
-	             }
-	         } else {
-	             // RHS is some compound expression, then LHS is non-constant (only kill)
-	             output.put(lhs, new State("null"));
-	         }
+	       
 	     }
 		
 		@Override
 		protected void flowThrough(Map<Local, State> input, Unit unit, Map<Local, State> output) {
-			// TODO Auto-generated method stub
-			G.v().out.println();
-			G.v().out.println("invalue=" + input);
 			copy(input, output);
 			// Only statements assigning locals matter
-			if (unit instanceof AssignStmt) {
-				// Get operands
-				Value lhsOp = ((AssignStmt) unit).getLeftOp();
-				Value rhsOp = ((AssignStmt) unit).getRightOp();
-				if (lhsOp instanceof Local) {
-					assign((Local) lhsOp, rhsOp, input, output);
+			Stmt stmt = (Stmt)unit;
+			G.v().out.println("stmt------" + stmt.toString());
+			if (stmt instanceof AssignStmt){
+				Value lhs = ((AssignStmt) stmt).getLeftOp();
+				Value rhs = ((AssignStmt) stmt).getRightOp();
+				
+				if(lhs instanceof Local){
+					if(stmt.containsInvokeExpr()){
+						InvokeExpr invokeExpr = stmt.getInvokeExpr();
+						String methodname = invokeExpr.getMethod().getName();
+						if (resource.containsMethod(methodname)){
+							//TODO: evaluate method and assign to lhs
+							// 
+						}
+					}
 				}
-			} else if (unit instanceof ReturnStmt) {
-				// Get operand
-				Value rhsOp = ((ReturnStmt) unit).getOp();
-				assign(RETURN_LOCAL, rhsOp, input, output);
 			}
-			// Return the data flow value at the OUT of the statement
-			G.v().out.println("outvalue=" + output);
 		}
 
 		@Override
