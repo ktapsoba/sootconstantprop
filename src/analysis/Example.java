@@ -1,3 +1,4 @@
+package analysis;
 import java.sql.Connection;
 
 
@@ -16,7 +17,9 @@ public class Example {
 		
 		int two = one *3;
 		
-		System.out.println(two);
+		if (con == null)
+			System.out.println("con is null");
+		System.out.println(Ahmed + two);
 	}
 
 }
