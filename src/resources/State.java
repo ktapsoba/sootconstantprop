@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class State {
 	
-	String name;
+	private String name;
 	
 	public static State getTop(){
 		return new State("TOP");

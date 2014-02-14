@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class Transition {
 	
-	State state1;
-	State state2;
-	Method method;
+	private State state1;
+	private State state2;
+	private Method method;
 	
 	public Transition(State st1, State st2, Method mthd){
 		state1 = st1;
@@ -14,6 +14,10 @@ public class Transition {
 		method = mthd;
 	}
 	
+	public Method getMethod() {
+		return method;
+	}
+
 	public String getName(){
 		return "From " + state1.toString() + " to " + state2.toString();
 	}
