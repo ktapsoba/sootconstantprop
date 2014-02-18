@@ -9,16 +9,20 @@ public class Example {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String Ahmed = "My name is Ahmed";
+		Connection con;
+		String Ahmed;
+		
+		Ahmed = "My name is Ahmed";
 		
 		Ahmed = "done";
-		Connection con = null;
+		con = null;
 		int one = 8 -7;
 		
 		int two = one *3;
 		
-		if (con == null)
+		if (con == null){
 			System.out.println("con is null");
+		}
 		System.out.println(Ahmed + two);
 	}
 

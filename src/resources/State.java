@@ -13,6 +13,14 @@ public class State {
 		return new State("BOTTOM");
 	}
 	
+	public static State getNull(){
+		return new State("NULL");
+	}
+	
+	public static State getUnknown(){
+		return new State("unknown");
+	}
+	
 	public State(String name){
 		this.name = name;
 	}
