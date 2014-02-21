@@ -5,7 +5,6 @@ import java.util.Map;
 
 import resources.Resource;
 import resources.State;
-import soot.G;
 import soot.Local;
 import soot.Value;
 import soot.ValueBox;
@@ -31,13 +30,13 @@ public class Visitor {
 		this.locals = locals;
 	}
 	
-	public void visit(Stmt stmt, Map<Local, State> input, Map<Local, State> output){
+	public void dispatch(Stmt stmt, Map<Local, State> input, Map<Local, State> output){
 		this.input = input;
 		this.output = output;
-		visit(stmt);
+		dispatch(stmt);
 	}
 	
-	private void visit(Stmt stmt){
+	private void dispatch(Stmt stmt){
 		
 		if (stmt instanceof IdentityStmt){
 			visit((IdentityStmt) stmt);
@@ -65,8 +64,12 @@ public class Visitor {
 		}
 	}
 	
+	private void visit(Stmt stmt) {
+		
+	}
+	
 	private void visit(IdentityStmt stmt){
-		G.v().out.println("Identity --> " + stmt.toString());
+		//G.v().out.println("Identity --> " + stmt.toString());
 	}
 	
 	private void visit(AssignStmt stmt){
@@ -81,7 +84,8 @@ public class Visitor {
 			String methodName = stmt.getInvokeExpr().getMethod().getName();
 			//G.v().out.println("invokeexpr --> " + methodName);
 			State state = resource.getStateByMethodName(methodName);
-			output.put((Local)lhs, state);
+			if (!state.equals(State.getUnknown()))
+				output.put((Local)lhs, state);
 		}
 		//G.v().out.println("Assign --> " + stmt.toString());
 	}
@@ -90,15 +94,18 @@ public class Visitor {
 		String methodName = stmt.getInvokeExpr().getMethod().getName();
 		State state = resource.getStateByMethodName(methodName);
 		List<ValueBox> useBoxes = stmt.getUseBoxes();
+		
+		//G.v().out.println("SIZE of USE Boxes " + useBoxes.size());
+		
 		for(ValueBox valueBox : useBoxes){
 			Value value = valueBox.getValue();
 			if (locals.contains(value)){
-				G.v().out.println("Invoke put --> " + value.toString() + " --- " + state.toString());
-				output.put((Local) value, state);
+				//G.v().out.println("Invoke put --> " + value.toString() + " --- " + state.toString());
+				if (!state.equals(State.getUnknown()))
+					output.put((Local) value, state);
 			}
 		}
-		//output.put(key, value)
-		G.v().out.println("Invoke --> " + stmt.toString());
+		//G.v().out.println("Invoke --> " + stmt.toString() + "-------- " + useBoxes.toString());
 	}
 	
 	private void visit(IfStmt stmt){

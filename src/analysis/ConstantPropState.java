@@ -1,7 +1,6 @@
 package analysis;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import resources.Resource;
@@ -17,21 +16,16 @@ import soot.toolkits.scalar.ForwardFlowAnalysis;
 public class ConstantPropState extends ForwardFlowAnalysis<Unit, Map<Local, State>> {
 	private final Resource resource = new Resource();
 	private Visitor visitor;
-	private Map <Unit Map<Local, State>> statesByUnits;
+	private Map <Unit, Map<Local, State>> statesByUnits;
 
 	public ConstantPropState(DirectedGraph<Unit> graph) {
 		super(graph);
 		this.graph = graph;
-		/*
-		 * Iterator it = ((UnitGraph)graph).iterator(); while(it.hasNext()){
-		 * 
-		 * }
-		 */
-		// TODO:
 		// Initialize States
 		
 		initializeStates();
 		doAnalysis();
+		printResults();
 	}
 	
 	private void initializeStates(){
@@ -44,9 +38,9 @@ public class ConstantPropState extends ForwardFlowAnalysis<Unit, Map<Local, Stat
 	protected void flowThrough(Map<Local, State> input, Unit unit, Map<Local, State> output) {
 		copy(input, output);
 		Stmt stmt = (Stmt) unit;
-		G.v().out.println("output before visit -- " + output);
-		visitor.visit(stmt, input, output);
-		G.v().out.println("after before visit -- " + output);
+		//G.v().out.println("output before visit -- " + output);
+		visitor.dispatch(stmt, input, output);
+		//G.v().out.println("after before visit -- " + output);
 		
 		Map<Local, State> statesByUnitLocalMap = getOutput(output);
 		statesByUnits.put(unit, statesByUnitLocalMap);
@@ -78,12 +72,14 @@ public class ConstantPropState extends ForwardFlowAnalysis<Unit, Map<Local, Stat
 				// Check the values in both operands
 				State c1 = input1.get(x);
 				State c2 = input2.get(x);
-				if (c1 != null && c1.equals(c2) == false) {
-					output.put(x, State.getTop());
+				//G.v().out.printf("c1: {} and c2: {} are in the both inputs", c1.toString(), c2.toString());
+				//they have the same state
+				if (c1.equals(c2)){
+					output.put(x, c2);
 				}
-			} else {
-				// Only in second operand, so add as-is
-				output.put(x, input2.get(x));
+				else {
+					//G.v().out.printf("c1: {} and c2: {} are not the same", c1.toString(), c2.toString());
+				}
 			}
 		}
 	}
@@ -100,6 +96,15 @@ public class ConstantPropState extends ForwardFlowAnalysis<Unit, Map<Local, Stat
 			newMap.put(local, output.get(local));
 		}
 		return newMap;
+	}
+	
+	private void printResults(){
+		for(Unit unit : statesByUnits.keySet()){
+			G.v().out.println("\nUnit : " + unit);
+			for(Local local : statesByUnits.get(unit).keySet()){
+				G.v().out.println(" [" + local + "->" + statesByUnits.get(unit).get(local) + "]");
+			}
+		}
 	}
 
 }
