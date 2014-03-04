@@ -1,26 +1,30 @@
 package resources;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import soot.Local;
 
 public class Resource {
 	
 	private Map<String, State> states;
-	private Map<String, Set<Transition>> transitions;
+	//private Map<String, Set<Transition>> transitions;
 	private Map<String, Transition> singleTransitions;
-	private Map<State, Action> actions;
+	private Map<State, List<Method>> actions;
 	private Map<String, Method> methods;
 	private Map<Method, State> StateByMethod;
+	private Map<State, List<Transition>> mapOfStatesByTransitionList;
 	
 	public Resource(){
 		states = new HashMap<String, State>();
-		transitions = new HashMap<String, Set<Transition>>();
+		//transitions = new HashMap<String, Set<Transition>>();
 		singleTransitions = new HashMap<String, Transition>();
-		actions = new HashMap<State, Action>();
+		actions = new HashMap<State, List<Method>>();
 		methods = new HashMap<String, Method>();
 		StateByMethod = new HashMap<Method, State>();
-		
+		mapOfStatesByTransitionList = new HashMap<State, List<Transition>>();
 		loadResources();
 	}
 	
@@ -57,9 +61,26 @@ public class Resource {
 		return methods.get(name);
 	}
 	
-	public boolean isMethodCallLegal(State state, Method method){
-		return (actions.get(state)).isMethodAllowed(method);
+	public Map<Local, List<State>> getMapOfValidStatesByLocals(Map<Local, State> mapOfStateByLocal){
+		Map<Local, List<State>> result = new HashMap<Local, List<State>>();
+		
+		for(Local local : mapOfStateByLocal.keySet()){
+			List<State> statesList = new ArrayList<State>();
+			State stateIn = mapOfStateByLocal.get(local);
+			List<Transition> transitionList = mapOfStatesByTransitionList.get(stateIn);
+			if (transitionList != null){
+			for(Transition transition : transitionList){
+				State stateOut = transition.getStateOut(stateIn);
+				if (stateOut != State.getNull()){
+					statesList.add(stateOut);
+				}
+			}
+			}
+			result.put(local, statesList);
+		}
+		return result;
 	}
+
 	
 	private void loadResources(){
 		loadStates();
@@ -121,6 +142,9 @@ public class Resource {
 	}
 	
 	private void loadActions(){
-		
+		//create actions
+		List<Method> methods1 = new ArrayList<Method>();
+		methods1.add(getMethod("getConnection"));
+		actions.put(states.get("NotConnected"), methods1);
 	}
 }

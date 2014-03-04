@@ -18,16 +18,21 @@ public class JdbcExample {
 	static final String PASS = "testUser";
  
 	public static void main(String[] args) {
-				
+		Statement one = null;
 		Connection conn = null;
-		Statement stmt = null;
+		Statement stmt = one;
+		process(conn, stmt);
+		System.out.println("Goodbye!");
+		
+	}//end main
+	
+	private static void process(Connection conn, Statement stmt){
 		try{
 			//STEP 2: Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
 
 			//STEP 3: Open a connection
 			System.out.println("Connecting to database...");
-			
 			conn = DriverManager.getConnection(DB_URL,USER,PASS);
 
 			//STEP 4: Execute a query
@@ -55,6 +60,7 @@ public class JdbcExample {
 			}
 			
 		    //STEP 6: Clean-up environment
+			
 		    rs.close();
 		    stmt.close();
 		    conn.close();
@@ -89,7 +95,5 @@ public class JdbcExample {
 			
 		}//end finally
 		
-		System.out.println("Goodbye!");
-		
-	}//end main
+	}
 }

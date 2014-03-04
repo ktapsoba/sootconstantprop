@@ -14,6 +14,13 @@ public class Transition {
 		method = mthd;
 	}
 	
+	public State getStateOut(State stateIn){
+		if (state1.equals(stateIn)){
+			return state2;
+		}
+		return State.getNull();
+	}
+	
 	public Method getMethod() {
 		return method;
 	}

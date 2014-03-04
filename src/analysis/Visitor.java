@@ -5,6 +5,7 @@ import java.util.Map;
 
 import resources.Resource;
 import resources.State;
+import soot.G;
 import soot.Local;
 import soot.Value;
 import soot.ValueBox;
@@ -62,17 +63,17 @@ public class Visitor {
 		else if (stmt instanceof NopStmt){
 			visit((NopStmt) stmt);
 		}
-	}
-	
-	private void visit(Stmt stmt) {
-		
+		else {
+			G.v().out.println("Other stmt" + stmt.toString());
+		}
 	}
 	
 	private void visit(IdentityStmt stmt){
-		//G.v().out.println("Identity --> " + stmt.toString());
+		G.v().out.println("Identity --> " + stmt.toString());
 	}
 	
 	private void visit(AssignStmt stmt){
+		G.v().out.println("Assign --> " + stmt.toString());
 		Value lhs = stmt.getLeftOp();
 		Value rhs = stmt.getRightOp();
 		
@@ -82,49 +83,46 @@ public class Visitor {
 		}
 		else if (stmt.containsInvokeExpr()){
 			String methodName = stmt.getInvokeExpr().getMethod().getName();
-			//G.v().out.println("invokeexpr --> " + methodName);
 			State state = resource.getStateByMethodName(methodName);
 			if (!state.equals(State.getUnknown()))
 				output.put((Local)lhs, state);
 		}
-		//G.v().out.println("Assign --> " + stmt.toString());
 	}
 	
 	private void visit(InvokeStmt stmt){
+		G.v().out.println("Invoke --> " + stmt.toString());
 		String methodName = stmt.getInvokeExpr().getMethod().getName();
 		State state = resource.getStateByMethodName(methodName);
 		List<ValueBox> useBoxes = stmt.getUseBoxes();
 		
-		//G.v().out.println("SIZE of USE Boxes " + useBoxes.size());
-		
 		for(ValueBox valueBox : useBoxes){
 			Value value = valueBox.getValue();
 			if (locals.contains(value)){
-				//G.v().out.println("Invoke put --> " + value.toString() + " --- " + state.toString());
 				if (!state.equals(State.getUnknown()))
 					output.put((Local) value, state);
 			}
 		}
-		//G.v().out.println("Invoke --> " + stmt.toString() + "-------- " + useBoxes.toString());
 	}
 	
 	private void visit(IfStmt stmt){
-		//G.v().out.println("IfStmt --> " + stmt.toString());
+		
+		G.v().out.println("IfStmt --> " + stmt.toString());
+		G.v().out.println("Condition --> " + stmt.getCondition().toString());
 	}
 	
 	private void visit(GotoStmt stmt){
-		//G.v().out.println("GotoStmt --> " + stmt.toString());
+		G.v().out.println("GotoStmt --> " + stmt.toString());
 	}
 	
 	private void visit(TableSwitchStmt stmt){
-		//G.v().out.println("TableSwitch --> " + stmt.toString());
+		G.v().out.println("TableSwitchStmt --> " + stmt.toString());
 	}
 	
 	private void visit(LookupSwitchStmt stmt){
-		//G.v().out.println("LookUp --> " + stmt.toString());
+		G.v().out.println("LookupSwitchStmt --> " + stmt.toString());
 	}
 	
 	private void visit(NopStmt stmt){
-		//G.v().out.println("NopStmt --> " + stmt.toString());
+		G.v().out.println("NopStmt --> " + stmt.toString());
 	}
 }
