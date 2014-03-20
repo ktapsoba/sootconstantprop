@@ -15,6 +15,7 @@ import soot.jimple.LookupSwitchStmt;
 import soot.jimple.NopStmt;
 import soot.jimple.Stmt;
 import soot.jimple.TableSwitchStmt;
+import soot.jimple.internal.JimpleLocalBox;
 
 public class Visitor {
 	State input;
@@ -70,21 +71,23 @@ public class Visitor {
 		Value lhs = stmt.getLeftOp();
 		Value rhs = stmt.getRightOp();
 		
-		if (input.containsLocal(rhs.toString())) {
+		if (input.containsKey(rhs)) {
 			output.put((Local)lhs, input.get((Local)rhs));
 		}
 		else if (stmt.containsInvokeExpr()){
 			Method method = getMethod(stmt.getInvokeExpr());
+			//G.v().out.println("Assign ---> " + stmt.getInvokeExpr());
 			//Object obj = stmt.getInvokeExpr().getUseBoxes().get(0);
 			
 			output = Transition.getInstance().getNewState(output, method, (Local)lhs);
-			/*if (obj instanceof JimpleLocalBox){
-				JimpleLocalBox objJ = (JimpleLocalBox)obj;
-				Value val = objJ.getValue();
-				output = Transition.getInstance().getNewState(output, method, (Local)lhs);
-			} else {
-				output = Transition.getInstance().getNewState(output, method, (Local)lhs);
-			}*/
+			if (method.isLogin() || method.isLogout()){
+				// We need to update the object calling the method to the new state
+				Object object = stmt.getInvokeExpr().getUseBoxes().get(0);
+				if(object instanceof JimpleLocalBox){
+					JimpleLocalBox jlBox = (JimpleLocalBox)object;
+					output = Transition.getInstance().getNewState(output, method, (Local)jlBox.getValue());
+				}
+			}
 		}
 
 	}
@@ -92,13 +95,14 @@ public class Visitor {
 	private void visit(InvokeStmt stmt){
 		Value local = stmt.getUseBoxes().get(0).getValue();
 		Method method = getMethod(stmt.getInvokeExpr());
-	//	G.v().out.println("loca " + local.toString() + "---> " +stmt.toString());
+		//G.v().out.println("Invoke ---> " + stmt.getInvokeExpr());
 		output = Transition.getInstance().getNewState(output, method, (Local)local);
 	}
 	
 	private Method getMethod(InvokeExpr invokeExpr){
 		String methodName = invokeExpr.getMethod().getName();
 		String methodClass = invokeExpr.getMethodRef().declaringClass().getShortName();
+		//G.v().out.println("Class.Name ---> " + methodClass + ".." + methodName);
 		return Method.getMethodByName(methodClass + "." + methodName);
 	}
 	

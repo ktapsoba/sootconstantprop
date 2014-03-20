@@ -2,17 +2,16 @@ package resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-import soot.G;
 import soot.Local;
+import soot.Value;
 
 abstract class StateType {
 	final String name;
 	
 	StateType(String name){ this.name = name; }
-	abstract StateType lub(StateType state);
-	abstract boolean lessThan(StateType state);
+	abstract StateType lub(StateType stateType);
+	abstract boolean lessThan(StateType stateType);
 	boolean isTop() {return false;}
 	boolean isBottom() {return false;}
 	boolean isNotConnectd(){ return false; }
@@ -31,8 +30,8 @@ class Top extends StateType{
 	
 	private Top(){ super("top"); }
 	static Top getTop() { return top; }
-	StateType lub(StateType state) { return this; }
-	boolean lessThan(StateType state) { return this == state; }
+	StateType lub(StateType stateType) { return this; }
+	boolean lessThan(StateType stateType) { return this == stateType; }
 	boolean isTop() { return true; }
 
 }
@@ -42,8 +41,8 @@ class Bottom extends StateType{
 	
 	private Bottom(){ super("bottom"); }
 	static Bottom getBottom() { return bottom; }
-	StateType lub(StateType state) { return state; }
-	boolean lessThan(StateType state) { return true; }
+	StateType lub(StateType stateType) { return stateType; }
+	boolean lessThan(StateType stateType) { return true; }
 	boolean isBottom() { return true; }
 	
 }
@@ -54,15 +53,15 @@ class NotConnected extends StateType {
 	private NotConnected(){ super("not Connected"); }
 	static NotConnected getNotConnected() { return notConnected; }
 	boolean isNotConnected() { return true; }
-	StateType lub(StateType state) { 
-		if (state.isTop() || state.isResult() || state.isConnected()) return state;
-		else if (state.isBottom()) return this;
+	StateType lub(StateType stateType) { 
+		if (stateType.isTop() || stateType.isResult() || stateType.isConnected()) return stateType;
+		else if (stateType.isBottom()) return this;
 		else return this;
 	}
 	
-	boolean lessThan(StateType state) { 
-		if (state.isTop() || state.isResult() || state.isConnected()) return true;
-		else if (state.isBottom()) return false;
+	boolean lessThan(StateType stateType) { 
+		if (stateType.isTop() || stateType.isResult() || stateType.isConnected()) return true;
+		else if (stateType.isBottom()) return false;
 		return true;
 	}
 }
@@ -74,14 +73,14 @@ class Connected extends StateType {
 	static Connected getConnected() { return connected; }
 	boolean isConnected() { return true; }
 	
-	StateType lub(StateType state) { 
-		if (state.isTop() || state.isResult()) return state;
-		else if (state.isBottom() || state.isNotConnectd()) return this;
+	StateType lub(StateType stateType) { 
+		if (stateType.isTop() || stateType.isResult()) return stateType;
+		else if (stateType.isBottom() || stateType.isNotConnectd()) return this;
 		else return this;
 	}
-	boolean lessThan(StateType state) { 
-		if (state.isTop() || state.isResult()) return true;
-		else if (state.isNotConnectd() || state.isBottom()) return false;
+	boolean lessThan(StateType stateType) { 
+		if (stateType.isTop() || stateType.isResult()) return true;
+		else if (stateType.isNotConnectd() || stateType.isBottom()) return false;
 		else return true;
 	}
 }
@@ -93,14 +92,14 @@ static private Statement statement = new Statement();
 	static Statement getStatement() { return statement; }
 	boolean isStatement() { return true; }
 	
-	StateType lub(StateType state) { 
-		if (state.isTop() || state.isResult()) return state;
-		else if (state.isBottom() || state.isNotConnectd() || state.isConnected()) return this;
+	StateType lub(StateType stateType) { 
+		if (stateType.isTop() || stateType.isResult()) return stateType;
+		else if (stateType.isBottom() || stateType.isNotConnectd() || stateType.isConnected()) return this;
 		else return this;
 	}
-	boolean lessThan(StateType state) { 
-		if (state.isTop() || state.isResult()) return true;
-		else if (state.isBottom() || state.isNotConnectd() || state.isConnected()) return false;
+	boolean lessThan(StateType stateType) { 
+		if (stateType.isTop() || stateType.isResult()) return true;
+		else if (stateType.isBottom() || stateType.isNotConnectd() || stateType.isConnected()) return false;
 		else return true;
 	}
 }
@@ -112,14 +111,14 @@ class Result extends StateType {
 	static Result getResult() { return result; }
 	boolean isResult() { return true; }
 	
-	StateType lub(StateType state) { 
-		if (state.isTop()) return state;
-		else if (state.isBottom() || state.isNotConnectd() || state.isConnected() || state.isStatement()) return this;
+	StateType lub(StateType stateType) { 
+		if (stateType.isTop()) return stateType;
+		else if (stateType.isBottom() || stateType.isNotConnectd() || stateType.isConnected() || stateType.isStatement()) return this;
 		else return this;
 	}
-	boolean lessThan(StateType state) { 
-		if (state.isTop()) return true;
-		else if (state.isBottom() || state.isNotConnectd() || state.isConnected()) return false;
+	boolean lessThan(StateType stateType) { 
+		if (stateType.isTop()) return true;
+		else if (stateType.isBottom() || stateType.isNotConnectd() || stateType.isConnected()) return false;
 		else return true;
 	}
 }
@@ -131,13 +130,13 @@ class LoggedIn extends StateType{
 	static LoggedIn getLoggedIn() { return loggedIn; }
 	boolean isLoggedIn() { return true;}
 	
-	StateType lub(StateType state){
-		if (state.isTop()) return state;
+	StateType lub(StateType stateType){
+		if (stateType.isTop()) return stateType;
 		else return this;
 	}
-	boolean lessThan(StateType state){
-		if(state.isTop()) return true;
-		else if (state.isBottom() || state.isNotConnectd() || state.isConnected()) return false;
+	boolean lessThan(StateType stateType){
+		if(stateType.isTop()) return true;
+		else if (stateType.isBottom() || stateType.isNotConnectd() || stateType.isConnected()) return false;
 		else return true;
 	}
 }
@@ -149,12 +148,12 @@ class LoggedOut extends StateType {
 	static LoggedOut getLoggedOut() { return loggedOut; }
 	boolean isLoggedOut() {return true;}
 	
-	StateType lub(StateType state){
-		if(state.isTop() || state.isLoggedIn()) return state;
+	StateType lub(StateType stateType){
+		if(stateType.isTop() || stateType.isLoggedIn()) return stateType;
 		else return this;
 	}
-	boolean lessThan(StateType state){
-		if(state.isTop() || state.isLoggedIn()) return true;
+	boolean lessThan(StateType stateType){
+		if(stateType.isTop() || stateType.isLoggedIn()) return true;
 		else return false;
 	}
 }
@@ -166,11 +165,11 @@ class InvalidState extends StateType{
 	static InvalidState getInvalidState() { return invalidState; }
 	boolean isInvalidState() { return true; }
 	
-	StateType lub(StateType state) { 
-		if (state.isTop() || state.isBottom() || state.isNotConnectd() || state.isConnected() || state.isStatement()) return state;
+	StateType lub(StateType stateType) { 
+		if (stateType.isTop() || stateType.isBottom() || stateType.isNotConnectd() || stateType.isConnected() || stateType.isStatement()) return stateType;
 		else return this;
 	}
-	boolean lessThan(StateType state) { 
+	boolean lessThan(StateType stateType) { 
 		return true;
 	}
 }
@@ -184,7 +183,7 @@ public class State extends HashMap<Local, StateType> {
 	static StateType getBottomState() { return Bottom.getBottom(); }
 	static StateType getInvalidState() { return InvalidState.getInvalidState(); }
 	
-	State(State state) { 
+	private State(State state) { 
 		super(state);
 		this.stateType = state.stateType;
 	}
@@ -206,7 +205,7 @@ public class State extends HashMap<Local, StateType> {
 		return newState;
 	}
 	
-	boolean lessThan(State state, Method method){
+	/*boolean lessThan(State state, Method method){
 		if (state != null){
 			for(Local local : state.keySet()){
 				if (this.containsKey(local)){
@@ -225,10 +224,6 @@ public class State extends HashMap<Local, StateType> {
 							G.v().out.println("VALID STATE CHANGE " + local.toString());
 						}
 					}
-					/*boolean isLessThan = this.get(local).lessThan(state.get(local));
-					//if the previous state is less than 
-					if (!isLessThan)
-						return isLessThan;*/
 				}
 				else {
 					G.v().out.println("new local " + local + "->" + state.get(local));
@@ -240,7 +235,7 @@ public class State extends HashMap<Local, StateType> {
 			}
 		}
 		return true;
-	}
+	}*/
 	
 	StateType getDefault() { return stateType; }
 	
@@ -259,21 +254,21 @@ public class State extends HashMap<Local, StateType> {
 		return newState;
 	}
 	
-	State update(List<Local> locals, List<StateType> types){
+	/*State update(List<Local> locals, List<StateType> types){
 		State newState = new State(this);
 		for(int i = 0; i < locals.size() && i < types.size(); i++){
 			newState.put(locals.get(i), types.get(i));
 		}
 		return newState;
+	}*/
+	
+	public StateType put(Local local, StateType stateType){
+		return super.put(local, stateType);
 	}
 	
-	public StateType put(Local local, StateType type){
-		return super.put(local, type);
-	}
-	
-	public StateType put(Local local, Method method){
+	/*public StateType put(Local local, Method method){
 		return super.put(local, method.getState());
-	}
+	}*/
 	
 	public StateType get(Object object){
 		StateType type = stateType;
@@ -286,10 +281,17 @@ public class State extends HashMap<Local, StateType> {
 		return type;
 	}
 	
-	public boolean containsLocal(String var){
-		//G.v().out.println("varia " + var);
+	@Override
+	public boolean containsKey(Object object){
+		if(object instanceof Value){
+			return containsLocal((Value)object);
+		}
+		return false;
+	}
+	
+	private boolean containsLocal(Value value){
 		for(Local local : this.keySet()){
-			if(local.getName().equals(var))
+			if(local.getName().equals(value.toString()))
 				return true;
 		}
 		return false;

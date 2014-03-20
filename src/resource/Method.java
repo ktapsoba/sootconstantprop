@@ -19,9 +19,10 @@ public abstract class Method {
 	boolean isCloseConnection() { return false; }
 	boolean isInvalidMethod() { return false; }
 	
+	boolean isNewFTP() { return false; }
 	boolean isConnect() { return false;}
-	boolean isLogin() { return false; }
-	boolean isLogout() { return false; }
+	public boolean isLogin() { return false; }
+	public boolean isLogout() { return false; }
 	boolean isDisconnect() { return false; }
 	
 	public Local getVariable(){
@@ -49,6 +50,9 @@ public abstract class Method {
 		}
 		else if (name.equals(CloseConnection.getInstance().toString())){
 			return CloseConnection.getInstance();
+		}
+		else if (name.equals(NewFTP.getInstance().toString())){
+			return NewFTP.getInstance();
 		}
 		else if (name.equals(Connect.getInstance().toString())){
 			return Connect.getInstance();
@@ -137,6 +141,16 @@ class CloseConnection extends Method {
 /*
  * FTPClient Methods
  */
+class NewFTP extends Method {
+	static private NewFTP newFTP = new NewFTP();
+	private NewFTP() {
+		super("FTPClient", "<init>");
+	}
+	boolean isNewFTP() { return true;}
+	StateType getState() { return NotConnected.getNotConnected(); }
+	static NewFTP getInstance() { return newFTP;}
+}
+
 class Connect extends Method {
 	static private Connect connect = new Connect();
 	private Connect() {
@@ -152,7 +166,7 @@ class Login extends Method {
 	private Login() {
 		super("FTPClient", "login");
 	}
-	boolean isLogin() {return true;}
+	public boolean isLogin() {return true;}
 	StateType getState() { return LoggedIn.getLoggedIn(); }
 	static Login getInstance() { return login; }
 }
@@ -162,7 +176,7 @@ class Logout extends Method {
 	private Logout() {
 		super("FTPClient", "logout");
 	}
-	boolean isLogout() {return true;}
+	public boolean isLogout() {return true;}
 	StateType getState() { return LoggedOut.getLoggedOut(); }
 	static Logout getInstance() { return logout; }
 }

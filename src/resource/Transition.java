@@ -28,7 +28,7 @@ public class Transition {
 	
 	
 	/*
-	 * 
+	 * Checking State transitions 
 	 */
 	
 	public void checkStateStmt(Stmt stmt, State inState, State outState){
@@ -41,7 +41,7 @@ public class Transition {
 		}
 		
 		if (!valid) {
-			G.v().out.println("ERRRRRRRRRRRRRRRRRRRRRRRRR" + stmt.toString());
+			G.v().out.println("ERRRRRRRRRRRRRRRRRRRRRRRRR with statement");
 		}
 	}
 	
@@ -55,10 +55,17 @@ public class Transition {
 		
 		StateType inStateType = inState.get((Local)local);
 		StateType outStateType = outState.get((Local)local);
-		if (!Action.isValidAction(inStateType, method))
-			return false;
-		if (method.getState() != outStateType)
-			return false;
+		if(inState.containsKey(local)){
+			if (!Action.isValidAction(inStateType, method))
+				return false;
+			if (method.getState() != outStateType)
+				return false;
+		}
+		else {
+			if(inStateType.lessThan(outStateType)){
+				return true;
+			}
+		}
 		return true;
 	}
 	
@@ -77,16 +84,7 @@ public class Transition {
 					return true;
 				}
 				
-				if(inState.containsLocal(val.toString())){
-					
-					if(val.toString().equals("stmt")){
-						G.v().out.println("inState -> " + inState.get((Local)val));
-						G.v().out.println("outState -> " + outState.get((Local)lhs));
-						G.v().out.println("method -> " + method.toString());
-						G.v().out.println("valid??? " + Action.isValidAction(inState.get((Local)val), method));
-					}
-					
-					G.v().out.println("rhs in InState " + rhs.toString());
+				if(inState.containsKey(val)){
 					StateType rhsInStateType = inState.get((Local)val);
 					if(!Action.isValidAction(rhsInStateType, method))
 						return false;
@@ -96,7 +94,7 @@ public class Transition {
 			}
 		}
 		else {
-			if (inState.containsLocal(rhs.toString())){
+			if (inState.containsKey(rhs)){
 				if(inState.get((Local)rhs) != outState.get((Local)lhs))
 					return false;
 			}
