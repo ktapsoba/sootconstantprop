@@ -30,8 +30,8 @@ public class ConstantPropState extends ForwardFlowAnalysis<Unit, Map<Local, Stat
 		// Initialize States
 		initializeStates();
 		doAnalysis();
-		//printResults();
-		checkUnitsState();
+		printResults();
+		//checkUnitsState();
 	}
 	
 	private void initializeStates(){

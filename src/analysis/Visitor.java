@@ -69,11 +69,11 @@ public class Visitor {
 	}
 	
 	private void visit(IdentityStmt stmt){
-		G.v().out.println("Identity --> " + stmt.toString());
+		//G.v().out.println("Identity --> " + stmt.toString());
 	}
 	
 	private void visit(AssignStmt stmt){
-		G.v().out.println("Assign --> " + stmt.toString());
+		//G.v().out.println("Assign --> " + stmt.toString());
 		Value lhs = stmt.getLeftOp();
 		Value rhs = stmt.getRightOp();
 		
@@ -90,7 +90,7 @@ public class Visitor {
 	}
 	
 	private void visit(InvokeStmt stmt){
-		G.v().out.println("Invoke --> " + stmt.toString());
+		//G.v().out.println("Invoke --> " + stmt.toString());
 		String methodName = stmt.getInvokeExpr().getMethod().getName();
 		State state = resource.getStateByMethodName(methodName);
 		List<ValueBox> useBoxes = stmt.getUseBoxes();
@@ -106,23 +106,23 @@ public class Visitor {
 	
 	private void visit(IfStmt stmt){
 		
-		G.v().out.println("IfStmt --> " + stmt.toString());
-		G.v().out.println("Condition --> " + stmt.getCondition().toString());
+		//G.v().out.println("IfStmt --> " + stmt.toString());
+		//G.v().out.println("Condition --> " + stmt.getCondition().toString());
 	}
 	
 	private void visit(GotoStmt stmt){
-		G.v().out.println("GotoStmt --> " + stmt.toString());
+		//G.v().out.println("GotoStmt --> " + stmt.toString());
 	}
 	
 	private void visit(TableSwitchStmt stmt){
-		G.v().out.println("TableSwitchStmt --> " + stmt.toString());
+		//G.v().out.println("TableSwitchStmt --> " + stmt.toString());
 	}
 	
 	private void visit(LookupSwitchStmt stmt){
-		G.v().out.println("LookupSwitchStmt --> " + stmt.toString());
+		//G.v().out.println("LookupSwitchStmt --> " + stmt.toString());
 	}
 	
 	private void visit(NopStmt stmt){
-		G.v().out.println("NopStmt --> " + stmt.toString());
+		//G.v().out.println("NopStmt --> " + stmt.toString());
 	}
 }

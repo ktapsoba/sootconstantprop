@@ -97,7 +97,8 @@ public class Resource {
 		State result = new State("Result");
 		State TOP = State.getTop();
 		State BOTTOM = State.getBottom();
-		State close = new State("Close");
+		State connectionClose = new State("Connection Close");
+		State statementClose = new State("Statement Close");
 
 		states.put(notConnected.getName(), notConnected);
 		states.put(connected.getName(), connected);
@@ -106,7 +107,8 @@ public class Resource {
 		states.put(result.getName(), result);
 		states.put(TOP.getName(), TOP);
 		states.put(BOTTOM.getName(), BOTTOM);
-		states.put(close.getName(), close);
+		states.put(connectionClose.getName(), connectionClose);
+		states.put(statementClose.getName(), statementClose);
 	}
 	
 	private void loadTransitions(){
@@ -137,14 +139,32 @@ public class Resource {
 		StateByMethod.put(getConnection, states.get("Connected"));
 		StateByMethod.put(createStatement, states.get("Statement"));
 		StateByMethod.put(executeQuery, states.get("Result"));
-		StateByMethod.put(closeConnection, states.get("Close"));
-		StateByMethod.put(closeStatement, states.get("Close"));
+		StateByMethod.put(closeConnection, states.get("Connection Close"));
+		StateByMethod.put(closeStatement, states.get("Statement Close"));
+		
+		/*Map<String, Method> notConnectedActions = new HashMap<String, Method>();
+		notConnectedActions.put(getConnection.getName(), getConnection);
+		states.get("Connected").setActions(notConnectedActions);
+		
+		Map<String, Method> connectedActions = new HashMap<String, Method>();
+		connectedActions.put(closeConnection.getName(), closeConnection);
+		connectedActions.put(createStatement.getName(), createStatement);
+		states.get("Statement").setActions(connectedActions);
+		
+		Map<String, Method> resultActions = new HashMap<String, Method>();
+		resultActions.put(closeConnection.getName(), closeConnection);
+		states.get("Result").setActions(resultActions);
+		
+		Map<String, Method> closeConnectionAction = new HashMap<String, Method>();
+		closeConnectionAction.put(getConnection.getName(), getConnection);
+		states.get("Connection Close").setActions(closeConnectionAction);
+		
+		Map<String, Method> statementCloseAction = new HashMap<String, Method>();
+		statementCloseAction.put(closeStatement.getName(), closeStatement);
+		states.get("Statement Close").setActions(statementCloseAction);*/
 	}
 	
 	private void loadActions(){
-		//create actions
-		List<Method> methods1 = new ArrayList<Method>();
-		methods1.add(getMethod("getConnection"));
-		actions.put(states.get("NotConnected"), methods1);
+		
 	}
 }

@@ -1,12 +1,12 @@
 package resources;
 
 
+
 public class State {
 	
 	private String name;
 	static State top = new State("TOP"), bot = new State("BOTTOM"), NULL = new State("NULL"),
 			unknown  = new State("UNKNOWN");
-	
 	
 	public static State getTop(){
 		return top;
