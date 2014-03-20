@@ -1,4 +1,5 @@
 package analysis;
+
 import java.util.Map;
 
 import soot.Body;
@@ -8,25 +9,19 @@ import soot.Transform;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
-public class CP_Analysis {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		(new CP_Analysis()).process(args);
-		
-	}
+public class Analysis {
 	
-	public void process(String[] args){
-		//Map<Local, Constant> out;
+	public static void main(String[] args){
+		(new Analysis()).process(args);
+	}
+
+	private void process(String[] args){
 		PackManager.v().getPack("jtp")
 		.add(new Transform("jtp.myTransform", new BodyTransformer() {
 
 			protected void internalTransform(Body body, String phase, Map options) {
 				UnitGraph unitGraph = new ExceptionalUnitGraph(body);
-				new ConstantPropState(unitGraph);
+				new ConstantPropagation(unitGraph);
 			}
 
 		}));

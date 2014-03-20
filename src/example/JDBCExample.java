@@ -1,6 +1,4 @@
-package analysis;
-
-
+package example;
 //STEP 1. Import required packages
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class JdbcExample {
+public class JDBCExample {
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
 	static final String DB_URL = "jdbc:mysql://localhost:3306/test";
@@ -21,12 +19,8 @@ public class JdbcExample {
 		Statement one = null;
 		Connection conn = null;
 		Statement stmt = one;
-		process(conn, stmt);
 		System.out.println("Goodbye!");
 		
-	}//end main
-	
-	private static void process(Connection conn, Statement stmt){
 		try{
 			//STEP 2: Register JDBC driver
 			Class.forName("com.mysql.jdbc.Driver");
@@ -34,7 +28,8 @@ public class JdbcExample {
 			//STEP 3: Open a connection
 			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL,USER,PASS);
-
+			
+			conn.close();
 			//STEP 4: Execute a query
 			System.out.println("Creating statement...");
 			
@@ -86,6 +81,7 @@ public class JdbcExample {
 			
 			try{
 				if(conn!=null)
+					System.out.println("Close Connection again");
 					conn.close();
 				
 			}catch(SQLException se){
@@ -95,5 +91,7 @@ public class JdbcExample {
 			
 		}//end finally
 		
-	}
+	}//end main
+	
+
 }
