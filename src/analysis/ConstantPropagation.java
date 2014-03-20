@@ -31,7 +31,7 @@ public class ConstantPropagation extends ForwardFlowAnalysis<Unit, State>{
 		stateByUnitOut = new HashMap<Unit, State>();
 		
 		doAnalysis();
-		printResults();
+		//printResults();
 		checkTransitions();
 	}
 	
@@ -98,9 +98,9 @@ public class ConstantPropagation extends ForwardFlowAnalysis<Unit, State>{
 	private void checkTransitions(){
 		PatchingChain<Unit> units = unitGraph.getBody().getUnits();
 		for(Unit unit : units){
-			G.v().out.println("Checking unit " + unit.toString());
+			/*G.v().out.println("Checking unit " + unit.toString());
 			G.v().out.println("IN :  " + stateByUnitIn.get(unit));
-			G.v().out.println("OUT :  " + stateByUnitOut.get(unit));
+			G.v().out.println("OUT :  " + stateByUnitOut.get(unit));*/
 			Transition.getInstance().checkStateStmt((Stmt)unit, stateByUnitIn.get(unit), stateByUnitOut.get(unit));
 		}
 	}

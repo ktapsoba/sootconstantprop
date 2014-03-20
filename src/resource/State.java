@@ -205,38 +205,6 @@ public class State extends HashMap<Local, StateType> {
 		return newState;
 	}
 	
-	/*boolean lessThan(State state, Method method){
-		if (state != null){
-			for(Local local : state.keySet()){
-				if (this.containsKey(local)){
-					//we have a transfer of statetype for the local
-					if (this.get(local) == state.get(local)){
-						G.v().out.println("NO STATE CHANGE");
-					}
-					// state change
-					else {
-						G.v().out.println("STATE CHANGE");
-						if (method.getState() != state.get(local)){
-							G.v().out.println("ERROR IN STATE CHANGE:" + state.get(local).toString() + " FOUND. EXPECTED" + method.getState().toString() );
-							return false;
-						}
-						else {
-							G.v().out.println("VALID STATE CHANGE " + local.toString());
-						}
-					}
-				}
-				else {
-					G.v().out.println("new local " + local + "->" + state.get(local));
-					if (state.get(local) != method.getState()){
-						G.v().out.println("ERROR IN STATE CHANGE:" + state.get(local).toString() + " FOUND. EXPECTED" + method.getState().toString() );
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}*/
-	
 	StateType getDefault() { return stateType; }
 	
 	public String toString() {
@@ -248,27 +216,10 @@ public class State extends HashMap<Local, StateType> {
 		return value;
 	}
 	
-	State update (Local local, StateType type){
-		State newState = new State(this);
-		newState.put(local, type);
-		return newState;
-	}
-	
-	/*State update(List<Local> locals, List<StateType> types){
-		State newState = new State(this);
-		for(int i = 0; i < locals.size() && i < types.size(); i++){
-			newState.put(locals.get(i), types.get(i));
-		}
-		return newState;
-	}*/
 	
 	public StateType put(Local local, StateType stateType){
 		return super.put(local, stateType);
 	}
-	
-	/*public StateType put(Local local, Method method){
-		return super.put(local, method.getState());
-	}*/
 	
 	public StateType get(Object object){
 		StateType type = stateType;
@@ -297,4 +248,30 @@ public class State extends HashMap<Local, StateType> {
 		return false;
 	}
 	 
+}
+
+class ContextualState extends HashMap<Local, HashMap<Integer, StateType>>{
+	private static final long serialVersionUID = 1L;
+	
+	
+	final StateType stateType;
+	static StateType getTopState() { return Top.getTop(); }
+	static StateType getBottomState() { return Bottom.getBottom(); }
+	static StateType getInvalidState() { return InvalidState.getInvalidState(); }
+	
+	private ContextualState(ContextualState ctxState) { 
+		super(ctxState);
+		this.stateType = ctxState.stateType;
+	}
+	
+	public ContextualState(){
+		super();
+		this.stateType = getBottomState();
+	}
+	
+	public HashMap<Integer, StateType> put(Local local, StateType stateType, int ctx){
+		HashMap<Integer, StateType> newStateType = new HashMap<>();
+		newStateType.put(ctx, stateType);
+		return super.put(local, newStateType);
+	}
 }

@@ -42,6 +42,9 @@ public class Transition {
 		
 		if (!valid) {
 			G.v().out.println("ERRRRRRRRRRRRRRRRRRRRRRRRR with statement");
+			G.v().out.println("Stmt: " + stmt.toString());
+			G.v().out.println("IN :  " + inState.toString());
+			G.v().out.println("OUT :  " + outState.toString());
 		}
 	}
 	
